@@ -90,7 +90,7 @@ local function createButtonAndCounter(name, yPos)
 	local lbl = Instance.new("TextLabel")
 	lbl.Size = UDim2.new(0, 80, 0, 25)
 	lbl.Position = UDim2.new(0, 120, 0, yPos)
-	lbl.Text = name .. ": 0"
+	lbl.Text = name .. "[0]"
 	lbl.TextColor3 = Color3.new(1,1,1)
 	lbl.BackgroundColor3 = Color3.new(0.2,0.2,0.2)
 	lbl.BorderColor3 = Color3.new(1, 1, 0) -- по умолчанию желтый, поменяем
@@ -177,7 +177,7 @@ local function updateChestCounters()
 	end
 	local total = 0
 	for name, count in pairs(counts) do
-		controls[name].label.Text = name .. ": " .. count
+		controls[name].label.Text = name .. "[" .. count .. "]"
 		total = total + count
 	end
 	-- обновляем общий счетчик
