@@ -79,7 +79,7 @@ local function createButtonAndCounter(name, yPos)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(0, 100, 0, 25)
 	btn.Position = UDim2.new(0, 10, 0, yPos)
-	btn.Text = name .. ": ВЫКЛ"
+	btn.Text = "AutoOpen [ВЫКЛ]"
 	btn.TextColor3 = Color3.new(1,1,1)
 	btn.BackgroundColor3 = Color3.new(1, 0.5, 0) -- оранжевый по умолчанию, поменяем для каждого
 	btn.BorderColor3 = Color3.new(1, 1, 0) -- желтый контур по умолчанию, поменяем
