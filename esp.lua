@@ -181,7 +181,7 @@ local function updateChestCounters()
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число сундуков: " .. total
+	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
