@@ -21,7 +21,7 @@ screenGui.Parent = playerGui
 
 -- Контейнер с возможностью перетаскивания
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 210, 0, 240)
+frame.Size = UDim2.new(0, 210, 0, 270)
 frame.Position = UDim2.new(0, 50, 0, 50)
 frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 frame.BorderSizePixel = 1
@@ -39,7 +39,7 @@ title.Parent = frame
 
 local totalChestsLabel = Instance.new("TextLabel")
 totalChestsLabel.Size = UDim2.new(1, -20, 0, 25)
-totalChestsLabel.Position = UDim2.new(0, 10, 0, 205)
+totalChestsLabel.Position = UDim2.new(0, 10, 0, 245)
 totalChestsLabel.Text = "Общее число предметов: 0"
 totalChestsLabel.TextColor3 = Color3.new(1, 1, 1)
 totalChestsLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
@@ -111,6 +111,10 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
 		ctrl.button.BorderColor3 = Color3.new(0.635294, 0.2, 0)
 		ctrl.button.TextColor3 = Color3.new(0.635294, 0.2, 0)
+	elseif name == "Tro-colate Milk" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.635294, 0.2, 0)
+		ctrl.button.TextColor3 = Color3.new(0.635294, 0.2, 0)
 	elseif name == "Tomato" then
 		ctrl.button.BackgroundColor3 = Color3.new(0.333333, 0, 0)
 		ctrl.button.BorderColor3 = Color3.new(1, 0, 0)
@@ -135,6 +139,10 @@ local function setButtonColors(ctrl, name)
 		lbl.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
 		lbl.BorderColor3 = Color3.new(0.635294, 0.2, 0)
 		lbl.TextColor3 = Color3.new(0.635294, 0.2, 0)
+	elseif name == "Tro-colate Milk" then
+		lbl.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
+		lbl.BorderColor3 = Color3.new(0.635294, 0.2, 0)
+		lbl.TextColor3 = Color3.new(0.635294, 0.2, 0)
 	elseif name == "Tomato" then
 		lbl.BackgroundColor3 = Color3.new(0.333333, 0, 0)
 		lbl.BorderColor3 = Color3.new(1, 0, 0)
@@ -153,7 +161,7 @@ end
 local yStart = 30
 local controls = {}
 local index = 0
-for _, name in ipairs({"Troll Burger", "Tro-colate Bar", "Tomato", "Onion", "Four-Leaf Clover"}) do
+for _, name in ipairs({"Troll Burger", "Tro-colate Bar", "Tro-colate Milk", "Tomato", "Onion", "Four-Leaf Clover"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * 35)
 	setButtonColors(controls[name], name)
@@ -176,7 +184,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {["Troll Burger"]=0,["Tro-colate Bar"]=0,["Tomato"]=0,["Onion"]=0,["Four-Leaf Clover"]=0}
+	local counts = {["Troll Burger"]=0,["Tro-colate Bar"]=0,["Tro-colate Milk"]=0,["Tomato"]=0,["Onion"]=0,["Four-Leaf Clover"]=0}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -198,7 +206,7 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Troll Burger" or tool.Name == "Tro-colate Bar" or tool.Name == "Tomato" or tool.Name == "Onion" or tool.Name == "Four-Leaf Clover") then
+		if tool:IsA("Tool") and (tool.Name == "Troll Burger" or tool.Name == "Tro-colate Bar" or tool.Name == "Tro-colate Milk" or tool.Name == "Tomato" or tool.Name == "Onion" or tool.Name == "Four-Leaf Clover") then
 			totalCount = totalCount + 1
 		end
 	end
