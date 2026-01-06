@@ -7,7 +7,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 local activeChests = {
 	["Troll Burger"] = false,
-	["Tro-cholate bar"] = false,
+	["Tro-colate Bar"] = false,
 	["Tomato"] = false,
 	["Onion"] = false,
 	["Four-Leaf Clover"] = false,
@@ -107,7 +107,7 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.576471, 0.384314, 0)
 		ctrl.button.BorderColor3 = Color3.new(1, 0.666667, 0) 
 		ctrl.button.TextColor3 = Color3.new(1, 0.666667, 0)
-	elseif name == "Tro-cholate bar" then
+	elseif name == "Tro-colate Bar" then
 		ctrl.button.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
 		ctrl.button.BorderColor3 = Color3.new(0.635294, 0.2, 0)
 		ctrl.button.TextColor3 = Color3.new(0.635294, 0.2, 0)
@@ -131,7 +131,7 @@ local function setButtonColors(ctrl, name)
 		lbl.BackgroundColor3 = Color3.new(0.576471, 0.384314, 0)
 		lbl.BorderColor3 = Color3.new(1, 0.666667, 0)
 		lbl.TextColor3 = Color3.new(1, 0.666667, 0)
-	elseif name == "Tro-cholate bar" then
+	elseif name == "Tro-colate Bar" then
 		lbl.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
 		lbl.BorderColor3 = Color3.new(0.635294, 0.2, 0)
 		lbl.TextColor3 = Color3.new(0.635294, 0.2, 0)
@@ -153,7 +153,7 @@ end
 local yStart = 30
 local controls = {}
 local index = 0
-for _, name in ipairs({"Troll Burger", "Tro-cholate bar", "Tomato", "Onion", "Four-Leaf Clover"}) do
+for _, name in ipairs({"Troll Burger", "Tro-colate Bar", "Tomato", "Onion", "Four-Leaf Clover"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * 35)
 	setButtonColors(controls[name], name)
@@ -176,7 +176,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {["Troll Burger"]=0,["Tro-cholate bar"]=0,["Tomato"]=0,["Onion"]=0,["Four-Leaf Clover"]=0}
+	local counts = {["Troll Burger"]=0,["Tro-colate Bar"]=0,["Tomato"]=0,["Onion"]=0,["Four-Leaf Clover"]=0}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -198,7 +198,7 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Troll Burger" or tool.Name == "Tro-cholate bar" or tool.Name == "Tomato" or tool.Name == "Onion" or tool.Name == "Four-Leaf Clover") then
+		if tool:IsA("Tool") and (tool.Name == "Troll Burger" or tool.Name == "Tro-colate Bar" or tool.Name == "Tomato" or tool.Name == "Onion" or tool.Name == "Four-Leaf Clover") then
 			totalCount = totalCount + 1
 		end
 	end
