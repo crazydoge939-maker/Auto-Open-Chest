@@ -1,179 +1,232 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
-local toolsToManage = {
-	"Oil Cup",
-	"Blood Cup",
-	"Acid Cup",
-	"Light Cup",
-	"Gold",
-	"Metal",
-	"Rusty Metal",
-	"Stone",
-	"Wood",
-	"Leather",
-	"Line Paper",
-	"Meat",
-	"Rope",
-	"Holy Chain",
-	"Shattered Chain",
-	"Coal",
-	"Orb",
-	"Cursed Orb",
-	"Holy Orb"
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local activeChests = {
+	Chest = false,
+	["Dark Chest"] = false,
+	["Light Chest"] = false,
+	["Skin Chest"] = false,
+	
+	["Magic Egg"] = false,
 }
 
+-- Создаем минимальный интерфейс
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "AutoFilter"
+screenGui.Name = "CompactChestUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Контейнер (перетаскиваемый, прозрачный фон)
-local container = Instance.new("Frame")
-container.Name = "Container"
-container.Size = UDim2.new(0.16, 0, 0.5, 0)
-container.Position = UDim2.new(0.2, 0, 0.25, 0)
-container.BackgroundTransparency = 1
-container.Parent = screenGui
-
--- Основная панель (88% ширины контейнера)
+-- Контейнер с возможностью перетаскивания
 local frame = Instance.new("Frame")
-frame.Name = "Panel"
-frame.Size = UDim2.new(0.88, 0, 1, 0)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 2
-frame.BorderColor3 = Color3.new(1, 1, 1)
-frame.Parent = container
+frame.Size = UDim2.new(0.17, 0, 0.3, 0)
+frame.Position = UDim2.new(0, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+frame.BorderSizePixel = 1
+frame.Parent = screenGui
 
--- Вкладка (таб) на правом краю — всегда видима, переключает панель
-local tabBtn = Instance.new("TextButton")
-tabBtn.Name = "TabButton"
-tabBtn.Size = UDim2.new(0.12, 0, 0.16, 0)
-tabBtn.Position = UDim2.new(0.88, 0, 0.1, 0)
-tabBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-tabBtn.BorderSizePixel = 2
-tabBtn.BorderColor3 = Color3.new(1, 1, 1)
-tabBtn.Text = "◀"
-tabBtn.TextColor3 = Color3.new(1, 1, 1)
-tabBtn.Font = Enum.Font.SourceSansBold
-tabBtn.TextScaled = true
-tabBtn.Parent = container
-
--- Перетаскивание контейнера (работает и с панели, и с вкладки)
-local dragging = false
-local dragInput, dragStart, startPos
-local dragDistance = 0
-
-local function onInputBegan(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = container.Position
-		dragDistance = 0
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end
-
-local function onInputChanged(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
-	end
-end
-
-frame.InputBegan:Connect(onInputBegan)
-tabBtn.InputBegan:Connect(onInputBegan)
-frame.InputChanged:Connect(onInputChanged)
-tabBtn.InputChanged:Connect(onInputChanged)
-
-UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		dragDistance = delta.Magnitude
-		container.Position = startPos + UDim2.new(0, delta.X, 0, delta.Y)
-	end
-end)
-
--- Заголовок
+-- Заголовок для перетаскивания
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0.08, 0)
-title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-title.Text = "Auto Filter"
+title.Size = UDim2.new(1, 0, 0.1, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "Auto Open Chests"
 title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
+title.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 title.TextScaled = true
 title.Parent = frame
 
--- Переключение панели через вкладку (клик, не перетаскивание)
-local consoleVisible = true
+local totalChestsLabel = Instance.new("TextLabel")
+totalChestsLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
+totalChestsLabel.Position = UDim2.new(0.05, 0, 0.89, 0)
+totalChestsLabel.Text = "Общее число сундуков: 0"
+totalChestsLabel.TextColor3 = Color3.new(1, 1, 1)
+totalChestsLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+totalChestsLabel.BorderColor3 = Color3.new(0, 0, 0)
+totalChestsLabel.BorderSizePixel = 2
+totalChestsLabel.TextScaled = true
+totalChestsLabel.Parent = frame
 
-tabBtn.MouseButton1Click:Connect(function()
-	if dragDistance < 5 then
-		if consoleVisible then
-			frame.Visible = false
-			consoleVisible = false
-			tabBtn.Text = "▶"
-		else
-			frame.Visible = true
-			consoleVisible = true
-			tabBtn.Text = "◀"
-		end
+-- Обработка перетаскивания
+local dragging = false
+local dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
 	end
 end)
 
--- Создаем кнопки инструментов (всё на scale)
-local buttons = {}
-local activeStates = {}
+title.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
 
-local buttonsPerRow = 4
-local btnW = 0.215
-local btnH = 0.15
-local spacingX = 0.025
-local spacingY = 0.02
-local startX = 0.025
-local startY = 0.1
+title.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = startPos + UDim2.new(0, delta.X, 0, delta.Y)
+	end
+end)
 
-for i, toolName in ipairs(toolsToManage) do
-	local row = math.floor((i - 1) / buttonsPerRow)
-	local col = (i - 1) % buttonsPerRow
-
+-- Создаем кнопку и счетчик на одной линии (всё на scale)
+local function createButtonAndCounter(name, yPos)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(btnW, 0, btnH, 0)
-	btn.Position = UDim2.new(startX + col * (btnW + spacingX), 0,
-		startY + row * (btnH + spacingY), 0)
-	btn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-	btn.Text = toolName .. " [OFF]"
-	btn.TextColor3 = Color3.new(1, 1, 1)
-	btn.Font = Enum.Font.SourceSans
+	btn.Size = UDim2.new(0.5, 0, 0.12, 0)
+	btn.Position = UDim2.new(0.03, 0, yPos, 0)
+	btn.Text = "AutoOpen [ВЫКЛ]"
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.BackgroundColor3 = Color3.new(1, 0.5, 0)
+	btn.BorderColor3 = Color3.new(1, 1, 0)
+	btn.BorderSizePixel = 2
 	btn.TextScaled = true
 	btn.Parent = frame
-	buttons[toolName] = btn
 
-	btn.MouseButton1Click:Connect(function()
-		activeStates[toolName] = not activeStates[toolName]
-		if activeStates[toolName] then
-			btn.Text = toolName .. " [ON]"
-			btn.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+	local lbl = Instance.new("TextLabel")
+	lbl.Size = UDim2.new(0.42, 0, 0.12, 0)
+	lbl.Position = UDim2.new(0.55, 0, yPos, 0)
+	lbl.Text = name .. "[0]"
+	lbl.TextColor3 = Color3.new(1,1,1)
+	lbl.BackgroundColor3 = Color3.new(0.2,0.2,0.2)
+	lbl.BorderColor3 = Color3.new(1, 1, 0)
+	lbl.BorderSizePixel = 2
+	lbl.TextScaled = true
+	lbl.Parent = frame
+
+	return {button = btn, label = lbl}
+end
+
+local function setButtonColors(ctrl, name)
+	if name == "Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.12549, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.227451, 0) 
+		ctrl.button.TextColor3 = Color3.new(1, 0.333333, 0)
+	elseif name == "Dark Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.12549, 0, 0.392157)
+		ctrl.button.BorderColor3 = Color3.new(0.227451, 0, 0.686275)
+		ctrl.button.TextColor3 = Color3.new(0.333333, 0, 1)
+	elseif name == "Light Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
+		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
+	elseif name == "Skin Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
+		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+	elseif name == "Magic Egg" then
+		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
+		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
+		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+	end
+
+	-- Аналогичные изменения для счетчиков
+	local lbl = ctrl.label
+	if name == "Chest" then
+		lbl.BackgroundColor3 = Color3.new(0.392157, 0.12549, 0)
+		lbl.BorderColor3 = Color3.new(0.686275, 0.227451, 0)
+		lbl.TextColor3 = Color3.new(1, 0.333333, 0)
+	elseif name == "Dark Chest" then
+		lbl.BackgroundColor3 = Color3.new(0.12549, 0, 0.392157)
+		lbl.BorderColor3 = Color3.new(0.227451, 0, 0.686275)
+		lbl.TextColor3 = Color3.new(0.333333, 0, 1)
+	elseif name == "Light Chest" then
+		lbl.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
+		lbl.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
+		lbl.TextColor3 = Color3.new(1, 1, 0)
+	elseif name == "Skin Chest" then
+		lbl.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
+		lbl.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
+		lbl.TextColor3 = Color3.new(1, 0, 1)
+	elseif name == "Magic Egg" then
+		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
+		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
+		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+	end
+end
+
+local yStart = 0.12
+local rowSpacing = 0.16
+local controls = {}
+local index = 0
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Magic Egg"}) do
+	index = index + 1
+	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
+	setButtonColors(controls[name], name)
+end
+
+-- Обработка нажатий
+for name, ctrl in pairs(controls) do
+	ctrl.button.MouseButton1Click:Connect(function()
+		activeChests[name] = not activeChests[name]
+		if activeChests[name] then
+			ctrl.button.Text = name .. ": ВКЛ"
+			ctrl.button.BackgroundColor3 = Color3.new(0,1,0)
 		else
-			btn.Text = toolName .. " [OFF]"
-			btn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+			ctrl.button.Text = name .. ": ВЫКЛ"
+			setButtonColors(ctrl, name) -- возвращаем исходные цвета
 		end
 	end)
 end
 
--- Постоянная проверка и удаление активных инструментов
-game:GetService("RunService").Stepped:Connect(function()
-	local backpack = player.Backpack
-
+-- Обновление счетчиков по сундукам
+local function updateChestCounters()
+	local backpack = player:WaitForChild("Backpack")
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Magic Egg"]=0}
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and activeStates[tool.Name] then
-			if table.find(toolsToManage, tool.Name) then
-				tool:Destroy()
+		if tool:IsA("Tool") then
+			if counts[tool.Name] ~= nil then
+				counts[tool.Name] = counts[tool.Name] + 1
 			end
+		end
+	end
+	local total = 0
+	for name, count in pairs(counts) do
+		controls[name].label.Text = name .. "[" .. count .. "]"
+		total = total + count
+	end
+	-- обновляем общий счетчик
+	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
+end
+
+-- Обновление общего количества сундуков
+local function updateTotalChestCount()
+	local backpack = player:WaitForChild("Backpack")
+	local totalCount = 0
+	for _, tool in ipairs(backpack:GetChildren()) do
+		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "Magic Egg") then
+			totalCount = totalCount + 1
+		end
+	end
+	-- Можно вывести или использовать это значение по необходимости
+	print("Общее число сундуков: " .. totalCount)
+end
+
+-- Активировать сундуки
+local function activateChests()
+	local backpack = player:WaitForChild("Backpack")
+	local character = player.Character
+	if not character then return end
+	for _, tool in ipairs(backpack:GetChildren()) do
+		if tool:IsA("Tool") and activeChests[tool.Name] then
+			player.Character.Humanoid:EquipTool(tool)
+			if tool.Activate then pcall(function() tool:Activate() end) end
+		end
+	end
+end
+
+-- Главный цикл
+RunService.RenderStepped:Connect(function()
+	updateChestCounters()
+	updateTotalChestCount() -- вызывается отдельно и не меняет заголовок
+	for n, active in pairs(activeChests) do
+		if active then
+			activateChests()
+			break
 		end
 	end
 end)
