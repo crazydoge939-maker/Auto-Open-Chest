@@ -11,7 +11,7 @@ local activeChests = {
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
 	
-	["Magic Egg"] = false,
+--	["Magic Egg"] = false,
 }
 
 -- Создаем минимальный интерфейс
@@ -22,7 +22,7 @@ screenGui.Parent = playerGui
 
 -- Контейнер с возможностью перетаскивания
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0.17, 0, 0.3, 0)
+frame.Size = UDim2.new(0.1, 0, 0.3, 0)
 frame.Position = UDim2.new(0, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 frame.BorderSizePixel = 1
@@ -74,12 +74,12 @@ title.InputChanged:Connect(function(input)
 	end
 end)
 
--- Создаем кнопку и счетчик на одной линии (всё на scale)
+-- Создаем кнопку на всю ширину с количеством
 local function createButtonAndCounter(name, yPos)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0.5, 0, 0.12, 0)
+	btn.Size = UDim2.new(0.94, 0, 0.12, 0)
 	btn.Position = UDim2.new(0.03, 0, yPos, 0)
-	btn.Text = "AutoOpen [ВЫКЛ]"
+	btn.Text = name .. ": ВЫКЛ [0]"
 	btn.TextColor3 = Color3.new(1,1,1)
 	btn.BackgroundColor3 = Color3.new(1, 0.5, 0)
 	btn.BorderColor3 = Color3.new(1, 1, 0)
@@ -87,18 +87,7 @@ local function createButtonAndCounter(name, yPos)
 	btn.TextScaled = true
 	btn.Parent = frame
 
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(0.42, 0, 0.12, 0)
-	lbl.Position = UDim2.new(0.55, 0, yPos, 0)
-	lbl.Text = name .. "[0]"
-	lbl.TextColor3 = Color3.new(1,1,1)
-	lbl.BackgroundColor3 = Color3.new(0.2,0.2,0.2)
-	lbl.BorderColor3 = Color3.new(1, 1, 0)
-	lbl.BorderSizePixel = 2
-	lbl.TextScaled = true
-	lbl.Parent = frame
-
-	return {button = btn, label = lbl}
+	return {button = btn, count = 0}
 end
 
 local function setButtonColors(ctrl, name)
@@ -118,42 +107,19 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
 		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
-	elseif name == "Magic Egg" then
-		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
-		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
-		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+--	elseif name == "Magic Egg" then
+--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
+--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
+--		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
 	end
 
-	-- Аналогичные изменения для счетчиков
-	local lbl = ctrl.label
-	if name == "Chest" then
-		lbl.BackgroundColor3 = Color3.new(0.392157, 0.12549, 0)
-		lbl.BorderColor3 = Color3.new(0.686275, 0.227451, 0)
-		lbl.TextColor3 = Color3.new(1, 0.333333, 0)
-	elseif name == "Dark Chest" then
-		lbl.BackgroundColor3 = Color3.new(0.12549, 0, 0.392157)
-		lbl.BorderColor3 = Color3.new(0.227451, 0, 0.686275)
-		lbl.TextColor3 = Color3.new(0.333333, 0, 1)
-	elseif name == "Light Chest" then
-		lbl.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
-		lbl.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
-		lbl.TextColor3 = Color3.new(1, 1, 0)
-	elseif name == "Skin Chest" then
-		lbl.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
-		lbl.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
-		lbl.TextColor3 = Color3.new(1, 0, 1)
-	elseif name == "Magic Egg" then
-		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
-		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
-		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
-	end
 end
 
 local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
 local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Magic Egg"}) do
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", }) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
@@ -164,10 +130,10 @@ for name, ctrl in pairs(controls) do
 	ctrl.button.MouseButton1Click:Connect(function()
 		activeChests[name] = not activeChests[name]
 		if activeChests[name] then
-			ctrl.button.Text = name .. ": ВКЛ"
+			ctrl.button.Text = name .. ": ВКЛ [" .. ctrl.count .. "]"
 			ctrl.button.BackgroundColor3 = Color3.new(0,1,0)
 		else
-			ctrl.button.Text = name .. ": ВЫКЛ"
+			ctrl.button.Text = name .. ": ВЫКЛ [" .. ctrl.count .. "]"
 			setButtonColors(ctrl, name) -- возвращаем исходные цвета
 		end
 	end)
@@ -176,7 +142,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Magic Egg"]=0}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -186,7 +152,9 @@ local function updateChestCounters()
 	end
 	local total = 0
 	for name, count in pairs(counts) do
-		controls[name].label.Text = name .. "[" .. count .. "]"
+		controls[name].count = count
+		local state = activeChests[name] and ": ВКЛ [" or ": ВЫКЛ ["
+		controls[name].button.Text = name .. state .. count .. "]"
 		total = total + count
 	end
 	-- обновляем общий счетчик
@@ -198,7 +166,7 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "Magic Egg") then
+		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest") then
 			totalCount = totalCount + 1
 		end
 	end
