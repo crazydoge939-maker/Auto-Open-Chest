@@ -219,10 +219,14 @@ local function activateChests()
 				tool:Activate()
 				task.wait(0.001)
 
-				-- Если Tool исчез — сервер удалил его, значит активация прошла успешно
+				-- Если Tool исчез — сервер удалил его, активация прошла успешно
 				if not tool or not tool.Parent then
 					break
 				end
+
+				-- Удаляем Tool после активации
+				tool:Destroy()
+				break
 			end
 		end
 
