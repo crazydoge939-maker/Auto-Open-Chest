@@ -1,3 +1,4 @@
+
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -10,8 +11,8 @@ local activeChests = {
 	["Dark Chest"] = false,
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
-	
---	["Magic Egg"] = false,
+
+	--	["Magic Egg"] = false,
 }
 
 -- Создаем минимальный интерфейс
@@ -107,10 +108,10 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
 		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
---	elseif name == "Magic Egg" then
---		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
---		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
---		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+		--	elseif name == "Magic Egg" then
+		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
+		--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
+		--		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
 	end
 
 end
@@ -175,26 +176,65 @@ local function updateTotalChestCount()
 end
 
 -- Активировать сундуки
+local isActivating = false
+
 local function activateChests()
-	local backpack = player:WaitForChild("Backpack")
+	if isActivating then return end
+
+	local backpack = player:FindFirstChild("Backpack")
 	local character = player.Character
-	if not character then return end
+	if not backpack or not character then return end
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	-- Собираем инструменты для активации
+	local toolsToActivate = {}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") and activeChests[tool.Name] then
-			player.Character.Humanoid:EquipTool(tool)
-			local success = pcall(function() tool:Activate() end)
-			if success then
-				task.wait(1)
-				tool:Destroy()
-			end
+			table.insert(toolsToActivate, tool)
 		end
 	end
+
+	if #toolsToActivate == 0 then return end
+
+	isActivating = true
+
+	task.spawn(function()
+		for _, tool in ipairs(toolsToActivate) do
+			-- Цикл повторных попыток: убираем из рук, берём снова, активируем
+			while tool and tool.Parent and activeChests[tool.Name] do
+				-- Убираем Tool из рук
+				humanoid:UnequipTools()
+				task.wait(0.3)
+
+				if not tool or not tool.Parent then break end
+
+				-- Берём Tool в руки
+				humanoid:EquipTool(tool)
+				task.wait(0.3)
+
+				if not tool or not tool.Parent then break end
+
+				-- Активируем Tool
+				tool:Activate()
+				task.wait(0.5)
+
+				-- Если Tool исчез — сервер удалил его, значит активация прошла успешно
+				if not tool or not tool.Parent then
+					break
+				end
+			end
+		end
+
+		isActivating = false
+	end)
 end
 
 -- Главный цикл
 RunService.RenderStepped:Connect(function()
 	updateChestCounters()
-	updateTotalChestCount() -- вызывается отдельно и не меняет заголовок
+	updateTotalChestCount()
 	for n, active in pairs(activeChests) do
 		if active then
 			activateChests()
