@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -184,6 +183,7 @@ local function activateChests()
 		if tool:IsA("Tool") and activeChests[tool.Name] then
 			player.Character.Humanoid:EquipTool(tool)
 			if tool.Activate then pcall(function() tool:Activate() end) end
+			wait(1)
 			tool:Destroy()
 		end
 	end
