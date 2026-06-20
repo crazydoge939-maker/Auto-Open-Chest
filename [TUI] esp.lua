@@ -205,19 +205,19 @@ local function activateChests()
 			while tool and tool.Parent and activeChests[tool.Name] do
 				-- Убираем Tool из рук
 				humanoid:UnequipTools()
-				task.wait(0.005)
+				task.wait(0.1)
 
 				if not tool or not tool.Parent then break end
 
 				-- Берём Tool в руки
 				humanoid:EquipTool(tool)
-				task.wait(0.005)
+				task.wait(0.1)
 
 				if not tool or not tool.Parent then break end
 
 				-- Активируем Tool
 				tool:Activate()
-				task.wait(0.001)
+				task.wait(0.05)
 
 				-- Если Tool исчез — сервер удалил его, активация прошла успешно
 				if not tool or not tool.Parent then
