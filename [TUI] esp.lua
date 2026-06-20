@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -206,19 +205,19 @@ local function activateChests()
 			while tool and tool.Parent and activeChests[tool.Name] do
 				-- Убираем Tool из рук
 				humanoid:UnequipTools()
-				task.wait(0.3)
+				task.wait(0.005)
 
 				if not tool or not tool.Parent then break end
 
 				-- Берём Tool в руки
 				humanoid:EquipTool(tool)
-				task.wait(0.3)
+				task.wait(0.005)
 
 				if not tool or not tool.Parent then break end
 
 				-- Активируем Tool
 				tool:Activate()
-				task.wait(0.5)
+				task.wait(0.001)
 
 				-- Если Tool исчез — сервер удалил его, значит активация прошла успешно
 				if not tool or not tool.Parent then
