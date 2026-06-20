@@ -182,9 +182,11 @@ local function activateChests()
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") and activeChests[tool.Name] then
 			player.Character.Humanoid:EquipTool(tool)
-			if tool.Activate then pcall(function() tool:Activate() end) end
-			wait(1)
-			tool:Destroy()
+			local success = pcall(function() tool:Activate() end)
+			if success then
+				task.wait(1)
+				tool:Destroy()
+			end
 		end
 	end
 end
