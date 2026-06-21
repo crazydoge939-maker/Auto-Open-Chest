@@ -10,6 +10,9 @@ local activeChests = {
 	["Dark Chest"] = false,
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
+	
+	["King Arm"] = false,
+	["Paper"] = false,
 
 	--	["Magic Egg"] = false,
 }
@@ -38,14 +41,28 @@ title.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 title.TextScaled = true
 title.Parent = frame
 
+-- ScrollingFrame для кнопок
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 0.7, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.11, 0)
+scrollFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 2
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scrollFrame.Parent = frame
+
+local list = Instance.new("UIListLayout")
+list.Padding = UDim.new(0.02, 0)
+list.Parent = scrollFrame
+
 local totalChestsLabel = Instance.new("TextLabel")
-totalChestsLabel.Size = UDim2.new(0.9, 0, 0.1, 0)
-totalChestsLabel.Position = UDim2.new(0.05, 0, 0.89, 0)
-totalChestsLabel.Text = "Общее число сундуков: 0"
+totalChestsLabel.Size = UDim2.new(1, 0, 0.12, 0)
+totalChestsLabel.Position = UDim2.new(0, 0, 0.85, 0)
+totalChestsLabel.Text = "Общее число Tool [0]"
 totalChestsLabel.TextColor3 = Color3.new(1, 1, 1)
 totalChestsLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
-totalChestsLabel.BorderColor3 = Color3.new(0, 0, 0)
-totalChestsLabel.BorderSizePixel = 2
+totalChestsLabel.BorderSizePixel = 1
 totalChestsLabel.TextScaled = true
 totalChestsLabel.Parent = frame
 
@@ -75,17 +92,16 @@ title.InputChanged:Connect(function(input)
 end)
 
 -- Создаем кнопку на всю ширину с количеством
-local function createButtonAndCounter(name, yPos)
+local function createButtonAndCounter(name)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0.94, 0, 0.12, 0)
-	btn.Position = UDim2.new(0.03, 0, yPos, 0)
+	btn.Size = UDim2.new(0.96, 0, 0.2, 0)
 	btn.Text = name .. ": ВЫКЛ [0]"
 	btn.TextColor3 = Color3.new(1,1,1)
 	btn.BackgroundColor3 = Color3.new(1, 0.5, 0)
 	btn.BorderColor3 = Color3.new(1, 1, 0)
 	btn.BorderSizePixel = 2
 	btn.TextScaled = true
-	btn.Parent = frame
+	btn.Parent = scrollFrame
 
 	return {button = btn, count = 0}
 end
@@ -107,6 +123,16 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
 		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+		
+	elseif name == "King Arm" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
+		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
+	elseif name == "Paper" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
+		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
+		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
+		
 		--	elseif name == "Magic Egg" then
 		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
 		--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
@@ -115,13 +141,9 @@ local function setButtonColors(ctrl, name)
 
 end
 
-local yStart = 0.12
-local rowSpacing = 0.16
 local controls = {}
-local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", }) do
-	index = index + 1
-	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "King Arm", "Paper"}) do
+	controls[name] = createButtonAndCounter(name)
 	setButtonColors(controls[name], name)
 end
 
@@ -142,7 +164,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["King Arm"]=0,["Paper"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -158,7 +180,7 @@ local function updateChestCounters()
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
+	totalChestsLabel.Text = "Общее число Tool [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
@@ -166,12 +188,12 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest") then
+		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "King Arm" or tool.Name == "Paper") then
 			totalCount = totalCount + 1
 		end
 	end
 	-- Можно вывести или использовать это значение по необходимости
-	print("Общее число сундуков: " .. totalCount)
+	print("Общее число Tool: " .. totalCount)
 end
 
 -- Активировать сундуки
