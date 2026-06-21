@@ -6,11 +6,15 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 local activeChests = {
-	["Troll Burger"] = false,
-	["Tro-colate Bar"] = false,
-	["Tomato"] = false,
-	["Onion"] = false,
-	["Four-Leaf Clover"] = false,
+	Chest = false,
+	["Dark Chest"] = false,
+	["Light Chest"] = false,
+	["Skin Chest"] = false,
+	
+	["King Arm"] = false,
+	["Paper"] = false,
+
+	--	["Magic Egg"] = false,
 }
 
 -- Создаем минимальный интерфейс
@@ -21,30 +25,44 @@ screenGui.Parent = playerGui
 
 -- Контейнер с возможностью перетаскивания
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 210, 0, 270)
-frame.Position = UDim2.new(0, 50, 0, 50)
+frame.Size = UDim2.new(0.1, 0, 0.3, 0)
+frame.Position = UDim2.new(0, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
 frame.BorderSizePixel = 1
 frame.Parent = screenGui
 
 -- Заголовок для перетаскивания
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 25)
+title.Size = UDim2.new(1, 0, 0.1, 0)
 title.Position = UDim2.new(0, 0, 0, 0)
-title.Text = "Auto Activ Items"
+title.Text = "Auto Open Chests"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 title.TextScaled = true
 title.Parent = frame
 
+-- ScrollingFrame для кнопок
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 0.7, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.11, 0)
+scrollFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 2
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scrollFrame.Parent = frame
+
+local list = Instance.new("UIListLayout")
+list.Padding = UDim.new(0.02, 0)
+list.Parent = scrollFrame
+
 local totalChestsLabel = Instance.new("TextLabel")
-totalChestsLabel.Size = UDim2.new(1, -20, 0, 25)
-totalChestsLabel.Position = UDim2.new(0, 10, 0, 245)
-totalChestsLabel.Text = "Общее число предметов: 0"
+totalChestsLabel.Size = UDim2.new(1, 0, 0.12, 0)
+totalChestsLabel.Position = UDim2.new(0, 0, 0.85, 0)
+totalChestsLabel.Text = "Общее число Tool [0]"
 totalChestsLabel.TextColor3 = Color3.new(1, 1, 1)
 totalChestsLabel.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
-totalChestsLabel.BorderColor3 = Color3.new(0, 0, 0)
-totalChestsLabel.BorderSizePixel = 2
+totalChestsLabel.BorderSizePixel = 1
 totalChestsLabel.TextScaled = true
 totalChestsLabel.Parent = frame
 
@@ -73,97 +91,59 @@ title.InputChanged:Connect(function(input)
 	end
 end)
 
-local yOffset = 30
-
--- Создаем кнопку и счетчик на одной линии
-local function createButtonAndCounter(name, yPos)
+-- Создаем кнопку на всю ширину с количеством
+local function createButtonAndCounter(name)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(0, 100, 0, 25)
-	btn.Position = UDim2.new(0, 10, 0, yPos)
-	btn.Text = "AutoActiv [ВЫКЛ]"
+	btn.Size = UDim2.new(0.96, 0, 0.2, 0)
+	btn.Text = name .. ": ВЫКЛ [0]"
 	btn.TextColor3 = Color3.new(1,1,1)
-	btn.BackgroundColor3 = Color3.new(1, 0.5, 0) -- оранжевый по умолчанию, поменяем для каждого
-	btn.BorderColor3 = Color3.new(1, 1, 0) -- желтый контур по умолчанию, поменяем
+	btn.BackgroundColor3 = Color3.new(1, 0.5, 0)
+	btn.BorderColor3 = Color3.new(1, 1, 0)
 	btn.BorderSizePixel = 2
 	btn.TextScaled = true
-	btn.Parent = frame
+	btn.Parent = scrollFrame
 
-	local lbl = Instance.new("TextLabel")
-	lbl.Size = UDim2.new(0, 80, 0, 25)
-	lbl.Position = UDim2.new(0, 120, 0, yPos)
-	lbl.Text = name .. "[0]"
-	lbl.TextColor3 = Color3.new(1,1,1)
-	lbl.BackgroundColor3 = Color3.new(0.2,0.2,0.2)
-	lbl.BorderColor3 = Color3.new(1, 1, 0) -- по умолчанию желтый, поменяем
-	lbl.BorderSizePixel = 2
-	lbl.TextScaled = true
-	lbl.Parent = frame
-
-	return {button = btn, label = lbl}
+	return {button = btn, count = 0}
 end
 
 local function setButtonColors(ctrl, name)
-	if name == "Troll Burger" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.576471, 0.384314, 0)
-		ctrl.button.BorderColor3 = Color3.new(1, 0.666667, 0) 
-		ctrl.button.TextColor3 = Color3.new(1, 0.666667, 0)
-	elseif name == "Tro-colate Bar" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
-		ctrl.button.BorderColor3 = Color3.new(0.635294, 0.2, 0)
-		ctrl.button.TextColor3 = Color3.new(0.635294, 0.2, 0)
-	elseif name == "Tro-colate Milk" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
-		ctrl.button.BorderColor3 = Color3.new(0.635294, 0.2, 0)
-		ctrl.button.TextColor3 = Color3.new(0.635294, 0.2, 0)
-	elseif name == "Tomato" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.333333, 0, 0)
-		ctrl.button.BorderColor3 = Color3.new(1, 0, 0)
-		ctrl.button.TextColor3 = Color3.new(1, 0, 0)
-	elseif name == "Onion" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.368627, 0.2)
-		ctrl.button.BorderColor3 = Color3.new(0.713725, 0.666667, 0.364706)
-		ctrl.button.TextColor3 = Color3.new(0.713725, 0.666667, 0.364706)
-	elseif name == "Four-Leaf Clover" then
-		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 0)
-		ctrl.button.BorderColor3 = Color3.new(0, 1, 0)
-		ctrl.button.TextColor3 = Color3.new(0, 1, 0)
+	if name == "Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.12549, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.227451, 0) 
+		ctrl.button.TextColor3 = Color3.new(1, 0.333333, 0)
+	elseif name == "Dark Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.12549, 0, 0.392157)
+		ctrl.button.BorderColor3 = Color3.new(0.227451, 0, 0.686275)
+		ctrl.button.TextColor3 = Color3.new(0.333333, 0, 1)
+	elseif name == "Light Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
+		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
+	elseif name == "Skin Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
+		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+		
+	elseif name == "King Arm" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
+		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
+	elseif name == "Paper" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
+		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
+		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
+		
+		--	elseif name == "Magic Egg" then
+		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
+		--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
+		--		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
 	end
 
-	-- Аналогичные изменения для счетчиков
-	local lbl = ctrl.label
-	if name == "Troll Burger" then
-		lbl.BackgroundColor3 = Color3.new(0.576471, 0.384314, 0)
-		lbl.BorderColor3 = Color3.new(1, 0.666667, 0)
-		lbl.TextColor3 = Color3.new(1, 0.666667, 0)
-	elseif name == "Tro-colate Bar" then
-		lbl.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
-		lbl.BorderColor3 = Color3.new(0.635294, 0.2, 0)
-		lbl.TextColor3 = Color3.new(0.635294, 0.2, 0)
-	elseif name == "Tro-colate Milk" then
-		lbl.BackgroundColor3 = Color3.new(0.290196, 0.0862745, 0)
-		lbl.BorderColor3 = Color3.new(0.635294, 0.2, 0)
-		lbl.TextColor3 = Color3.new(0.635294, 0.2, 0)
-	elseif name == "Tomato" then
-		lbl.BackgroundColor3 = Color3.new(0.333333, 0, 0)
-		lbl.BorderColor3 = Color3.new(1, 0, 0)
-		lbl.TextColor3 = Color3.new(1, 0, 0)
-	elseif name == "Onion" then
-		lbl.BackgroundColor3 = Color3.new(0.392157, 0.368627, 0.2)
-		lbl.BorderColor3 = Color3.new(0.713725, 0.666667, 0.364706)
-		lbl.TextColor3 = Color3.new(0.713725, 0.666667, 0.364706)
-	elseif name == "Four-Leaf Clover" then
-		lbl.BackgroundColor3 = Color3.new(0, 0.333333, 0)
-		lbl.BorderColor3 = Color3.new(0, 1, 0)
-		lbl.TextColor3 = Color3.new(0, 1, 0)
-	end
 end
 
-local yStart = 30
 local controls = {}
-local index = 0
-for _, name in ipairs({"Troll Burger", "Tro-colate Bar", "Tro-colate Milk", "Tomato", "Onion", "Four-Leaf Clover"}) do
-	index = index + 1
-	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * 35)
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "King Arm", "Paper"}) do
+	controls[name] = createButtonAndCounter(name)
 	setButtonColors(controls[name], name)
 end
 
@@ -172,10 +152,10 @@ for name, ctrl in pairs(controls) do
 	ctrl.button.MouseButton1Click:Connect(function()
 		activeChests[name] = not activeChests[name]
 		if activeChests[name] then
-			ctrl.button.Text = name .. ": ВКЛ"
+			ctrl.button.Text = name .. ": ВКЛ [" .. ctrl.count .. "]"
 			ctrl.button.BackgroundColor3 = Color3.new(0,1,0)
 		else
-			ctrl.button.Text = name .. ": ВЫКЛ"
+			ctrl.button.Text = name .. ": ВЫКЛ [" .. ctrl.count .. "]"
 			setButtonColors(ctrl, name) -- возвращаем исходные цвета
 		end
 	end)
@@ -184,7 +164,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {["Troll Burger"]=0,["Tro-colate Bar"]=0,["Tro-colate Milk"]=0,["Tomato"]=0,["Onion"]=0,["Four-Leaf Clover"]=0}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["King Arm"]=0,["Paper"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -194,11 +174,13 @@ local function updateChestCounters()
 	end
 	local total = 0
 	for name, count in pairs(counts) do
-		controls[name].label.Text = name .. "[" .. count .. "]"
+		controls[name].count = count
+		local state = activeChests[name] and ": ВКЛ [" or ": ВЫКЛ ["
+		controls[name].button.Text = name .. state .. count .. "]"
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число предметов [" .. total .. "]"
+	totalChestsLabel.Text = "Общее число Tool [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
@@ -206,31 +188,78 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Troll Burger" or tool.Name == "Tro-colate Bar" or tool.Name == "Tro-colate Milk" or tool.Name == "Tomato" or tool.Name == "Onion" or tool.Name == "Four-Leaf Clover") then
+		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "King Arm" or tool.Name == "Paper") then
 			totalCount = totalCount + 1
 		end
 	end
 	-- Можно вывести или использовать это значение по необходимости
-	print("Общее число предметов: " .. totalCount)
+	print("Общее число Tool: " .. totalCount)
 end
 
 -- Активировать сундуки
+local isActivating = false
+
 local function activateChests()
-	local backpack = player:WaitForChild("Backpack")
+	if isActivating then return end
+
+	local backpack = player:FindFirstChild("Backpack")
 	local character = player.Character
-	if not character then return end
+	if not backpack or not character then return end
+
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return end
+
+	-- Собираем инструменты для активации
+	local toolsToActivate = {}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") and activeChests[tool.Name] then
-			player.Character.Humanoid:EquipTool(tool)
-			if tool.Activate then pcall(function() tool:Activate() end) end
+			table.insert(toolsToActivate, tool)
 		end
 	end
+
+	if #toolsToActivate == 0 then return end
+
+	isActivating = true
+
+	task.spawn(function()
+		for _, tool in ipairs(toolsToActivate) do
+			-- Цикл повторных попыток: убираем из рук, берём снова, активируем
+			while tool and tool.Parent and activeChests[tool.Name] do
+				-- Убираем Tool из рук
+				humanoid:UnequipTools()
+				task.wait(0)
+
+				if not tool or not tool.Parent then break end
+
+				-- Берём Tool в руки
+				humanoid:EquipTool(tool)
+				task.wait(0)
+
+				if not tool or not tool.Parent then break end
+
+				-- Активируем Tool
+				tool:Activate()
+				task.wait(0)
+
+				-- Если Tool исчез — сервер удалил его, активация прошла успешно
+				if not tool or not tool.Parent then
+					break
+				end
+
+				-- Удаляем Tool после активации
+				tool:Destroy()
+				break
+			end
+		end
+
+		isActivating = false
+	end)
 end
 
 -- Главный цикл
 RunService.RenderStepped:Connect(function()
 	updateChestCounters()
-	updateTotalChestCount() -- вызывается отдельно и не меняет заголовок
+	updateTotalChestCount()
 	for n, active in pairs(activeChests) do
 		if active then
 			activateChests()
