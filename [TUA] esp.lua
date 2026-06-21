@@ -11,7 +11,7 @@ local activeChests = {
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
 	
-	["King Arm"] = false,
+	["Kings Arm"] = false,
 	["Paper"] = false,
 
 	--	["Magic Egg"] = false,
