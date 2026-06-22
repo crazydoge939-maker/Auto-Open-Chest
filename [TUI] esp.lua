@@ -247,7 +247,7 @@ local function activateChests()
 				end
 
 				-- Удаляем Tool после активации
-				tool:Destroy()
+--				tool:Destroy()
 				break
 			end
 		end
