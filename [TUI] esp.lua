@@ -10,8 +10,8 @@ local activeChests = {
 	["Dark Chest"] = false,
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
-	
-	["Kings Arm"] = false,
+
+	["King Arm"] = false,
 	["Paper"] = false,
 
 	--	["Magic Egg"] = false,
@@ -123,8 +123,8 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
 		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
-		
-	elseif name == "Kings Arm" then
+
+	elseif name == "King Arm" then
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
 		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
@@ -132,7 +132,7 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
 		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
 		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
-		
+
 		--	elseif name == "Magic Egg" then
 		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
 		--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
@@ -141,9 +141,13 @@ local function setButtonColors(ctrl, name)
 
 end
 
+local yStart = 0.12
+local rowSpacing = 0.16
 local controls = {}
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper"}) do
-	controls[name] = createButtonAndCounter(name)
+local index = 0
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "King Arm", "Paper"}) do
+	index = index + 1
+	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
 end
 
@@ -164,7 +168,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["King Arm"]=0,["Paper"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -180,7 +184,7 @@ local function updateChestCounters()
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число Tool [" .. total .. "]"
+	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
@@ -188,78 +192,32 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "Kings Arm" or tool.Name == "Paper") then
+		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest") then
 			totalCount = totalCount + 1
 		end
 	end
 	-- Можно вывести или использовать это значение по необходимости
-	print("Общее число Tool: " .. totalCount)
+	print("Общее число сундуков: " .. totalCount)
 end
 
 -- Активировать сундуки
-local isActivating = false
-
 local function activateChests()
-	if isActivating then return end
-
-	local backpack = player:FindFirstChild("Backpack")
+	local backpack = player:WaitForChild("Backpack")
 	local character = player.Character
-	if not backpack or not character then return end
-
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
-
-	-- Собираем инструменты для активации
-	local toolsToActivate = {}
+	if not character then return end
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") and activeChests[tool.Name] then
-			table.insert(toolsToActivate, tool)
+			player.Character.Humanoid:EquipTool(tool)
+			if tool.Activate then pcall(function() tool:Activate() end) end
+			tool:Destroy()
 		end
 	end
-
-	if #toolsToActivate == 0 then return end
-
-	isActivating = true
-
-	task.spawn(function()
-		for _, tool in ipairs(toolsToActivate) do
-			-- Цикл повторных попыток: убираем из рук, берём снова, активируем
-			while tool and tool.Parent and activeChests[tool.Name] do
-				-- Убираем Tool из рук
-				humanoid:UnequipTools()
-				task.wait(0)
-
-				if not tool or not tool.Parent then break end
-
-				-- Берём Tool в руки
-				humanoid:EquipTool(tool)
-				task.wait(0)
-
-				if not tool or not tool.Parent then break end
-
-				-- Активируем Tool
-				tool:Activate()
-				task.wait(0)
-
-				-- Если Tool исчез — сервер удалил его, активация прошла успешно
-				if not tool or not tool.Parent then
-					break
-				end
-
-				-- Удаляем Tool после активации
---				tool:Destroy()
-				break
-			end
-		end
-
-		isActivating = false
-	end)
 end
 
 -- Главный цикл
 RunService.RenderStepped:Connect(function()
 	updateChestCounters()
-	updateTotalChestCount()
+	updateTotalChestCount() -- вызывается отдельно и не меняет заголовок
 	for n, active in pairs(activeChests) do
 		if active then
 			activateChests()
