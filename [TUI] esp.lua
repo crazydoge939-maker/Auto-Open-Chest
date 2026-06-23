@@ -13,6 +13,7 @@ local activeChests = {
 
 	["Kings Arm"] = false,
 	["Paper"] = false,
+	["Space Egg"] = false,
 
 	--	["Magic Egg"] = false,
 }
@@ -132,6 +133,10 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
 		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
 		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
+	elseif name == "Space Egg" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.0156863, 0.0666667, 0.368627)
+		ctrl.button.BorderColor3 = Color3.new(0.298039, 0.603922, 0.666667)
+		ctrl.button.TextColor3 = Color3.new(0.00392157, 0.270588, 0.27451)
 
 		--	elseif name == "Magic Egg" then
 		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
@@ -145,7 +150,7 @@ local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
 local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper"}) do
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper", "Space Egg"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
@@ -168,7 +173,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,["Space Egg"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -184,7 +189,7 @@ local function updateChestCounters()
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число Tool [" .. total .. "]"
+	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
@@ -192,7 +197,15 @@ local function updateTotalChestCount()
 	local backpack = player:WaitForChild("Backpack")
 	local totalCount = 0
 	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") and (tool.Name == "Chest" or tool.Name == "Dark Chest" or tool.Name == "Light Chest" or tool.Name == "Skin Chest" or tool.Name == "Kings Arm" or tool.Name == "Paper") then
+		if tool:IsA("Tool") 
+			and (tool.Name == "Chest" 
+			or tool.Name == "Dark Chest" 
+			or tool.Name == "Light Chest" 
+			or tool.Name == "Skin Chest" 
+			or tool.Name == "Kings Arm" 
+			or tool.Name == "Paper"
+				or tool.Name == "Space Egg"
+			) 	then
 			totalCount = totalCount + 1
 		end
 	end
@@ -209,6 +222,7 @@ local function activateChests()
 		if tool:IsA("Tool") and activeChests[tool.Name] then
 			player.Character.Humanoid:EquipTool(tool)
 			if tool.Activate then pcall(function() tool:Activate() end) end
+			tool:Destroy()
 		end
 	end
 end
