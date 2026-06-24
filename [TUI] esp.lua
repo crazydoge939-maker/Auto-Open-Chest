@@ -13,6 +13,8 @@ local activeChests = {
 
 	["Kings Arm"] = false,
 	["Paper"] = false,
+	["Unknown Eye"] = false,
+	["Warp Spiral"] = false,
 	["Space Egg"] = false,
 
 	--	["Magic Egg"] = false,
@@ -133,6 +135,14 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
 		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
 		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
+	elseif name == "Unknown Eye" then
+		ctrl.button.BackgroundColor3 = Color3.new(0, 0, 0)
+		ctrl.button.BorderColor3 = Color3.new(0.196078, 0.196078, 0.196078)
+		ctrl.button.TextColor3 = Color3.new(1, 0, 0)
+	elseif name == "Warp Spiral" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.141176, 0, 0.423529)
+		ctrl.button.BorderColor3 = Color3.new(0.333333, 0, 1)
+		ctrl.button.TextColor3 = Color3.new(0.333333, 0, 1)
 	elseif name == "Space Egg" then
 		ctrl.button.BackgroundColor3 = Color3.new(0.0156863, 0.0666667, 0.368627)
 		ctrl.button.BorderColor3 = Color3.new(0.298039, 0.603922, 0.666667)
@@ -150,7 +160,7 @@ local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
 local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper", "Space Egg"}) do
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper", "Space Egg", "Warp Spiral", "Unknown Eye"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
@@ -173,7 +183,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,["Space Egg"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,["Space Egg"]=0,["Unknown Eye"]=0,["Warp Spiral"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
