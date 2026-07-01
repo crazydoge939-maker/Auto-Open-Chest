@@ -10,12 +10,11 @@ local activeChests = {
 	["Dark Chest"] = false,
 	["Light Chest"] = false,
 	["Skin Chest"] = false,
+	["ICE Chest"] = false,
 
-	["Kings Arm"] = false,
-	["Paper"] = false,
-	["Unknown Eye"] = false,
-	["Warp Spiral"] = false,
-	["Space Egg"] = false,
+	["IceLolly"] = false,
+	["Big IceLolly"] = false,
+	["Huge IceLolly"] = false,
 
 	--	["Magic Egg"] = false,
 }
@@ -126,27 +125,23 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
 		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+	elseif name == "ICE Chest" then
+		ctrl.button.BackgroundColor3 = Color3.new(0, 0.282353, 0.282353)
+		ctrl.button.BorderColor3 = Color3.new(0, 0.654902, 0.654902)
+		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
 
-	elseif name == "Kings Arm" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
-		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
-		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
-	elseif name == "Paper" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.368627, 0.368627, 0.368627)
-		ctrl.button.BorderColor3 = Color3.new(0.666667, 0.666667, 0.666667)
-		ctrl.button.TextColor3 = Color3.new(0, 0, 0)
-	elseif name == "Unknown Eye" then
-		ctrl.button.BackgroundColor3 = Color3.new(0, 0, 0)
-		ctrl.button.BorderColor3 = Color3.new(0.196078, 0.196078, 0.196078)
-		ctrl.button.TextColor3 = Color3.new(1, 0, 0)
-	elseif name == "Warp Spiral" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.141176, 0, 0.423529)
-		ctrl.button.BorderColor3 = Color3.new(0.333333, 0, 1)
-		ctrl.button.TextColor3 = Color3.new(0.333333, 0, 1)
-	elseif name == "Space Egg" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.0156863, 0.0666667, 0.368627)
-		ctrl.button.BorderColor3 = Color3.new(0.298039, 0.603922, 0.666667)
-		ctrl.button.TextColor3 = Color3.new(0.00392157, 0.270588, 0.27451)
+	elseif name == "IceLolly" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.666667, 0.333333, 0.498039)
+		ctrl.button.BorderColor3 = Color3.new(0.403922, 0.2, 0.301961)
+		ctrl.button.TextColor3 = Color3.new(1, 0.498039, 0.74902)
+	elseif name == "Big IceLolly" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.270588, 0, 0.403922)
+		ctrl.button.BorderColor3 = Color3.new(0.486275, 0, 0.729412)
+		ctrl.button.TextColor3 = Color3.new(0.666667, 0, 1)
+	elseif name == "Huge IceLolly" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.380392, 0, 0.380392)
+		ctrl.button.BorderColor3 = Color3.new(0.619608, 0, 0.619608)
+		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
 
 		--	elseif name == "Magic Egg" then
 		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
@@ -160,7 +155,7 @@ local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
 local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "Kings Arm", "Paper", "Space Egg", "Warp Spiral", "Unknown Eye"}) do
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "ICE Chest", "IceLolly", "Big IceLolly", "Huge IceLolly"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
@@ -183,7 +178,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Kings Arm"]=0,["Paper"]=0,["Space Egg"]=0,["Unknown Eye"]=0,["Warp Spiral"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["Ice Chest"]=0,["IceLolly"]=0,["Big IceLolly"]=0,["Huge IceLolly"]=0,}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -199,7 +194,7 @@ local function updateChestCounters()
 		total = total + count
 	end
 	-- обновляем общий счетчик
-	totalChestsLabel.Text = "Общее число сундуков [" .. total .. "]"
+	totalChestsLabel.Text = "Общее число объектов [" .. total .. "]"
 end
 
 -- Обновление общего количества сундуков
@@ -212,9 +207,10 @@ local function updateTotalChestCount()
 			or tool.Name == "Dark Chest" 
 			or tool.Name == "Light Chest" 
 			or tool.Name == "Skin Chest" 
-			or tool.Name == "Kings Arm" 
-			or tool.Name == "Paper"
-				or tool.Name == "Space Egg"
+			or tool.Name == "ICE Chest" 
+				or tool.Name == "IceLolly"
+				or tool.Name == "Big IceLolly"
+				or tool.Name == "Huge IceLolly"
 			) 	then
 			totalCount = totalCount + 1
 		end
