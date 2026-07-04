@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -15,7 +14,7 @@ local activeChests = {
 
 	["IceLolly"] = false,
 	["Big IceLolly"] = false,
-	["Huge IceLolly"] = false,
+	["HUGE ICELOLLY"] = false,
 
 	--	["Magic Egg"] = false,
 }
