@@ -1,3 +1,4 @@
+
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -232,14 +233,24 @@ local function activateChests()
 	end
 end
 
+-- Проверяем, есть ли в инвентаре активные Tool
+local function hasActiveTools()
+	local backpack = player:FindFirstChild("Backpack")
+	if not backpack then return false end
+	for _, tool in ipairs(backpack:GetChildren()) do
+		if tool:IsA("Tool") and activeChests[tool.Name] then
+			return true
+		end
+	end
+	return false
+end
+
 -- Главный цикл
 RunService.RenderStepped:Connect(function()
 	updateChestCounters()
 	updateTotalChestCount() -- вызывается отдельно и не меняет заголовок
-	for n, active in pairs(activeChests) do
-		if active then
-			activateChests()
-			break
-		end
+	-- Запускаем активацию только если в инвентаре есть активный Tool
+	if hasActiveTools() then
+		activateChests()
 	end
 end)
