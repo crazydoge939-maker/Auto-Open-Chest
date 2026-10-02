@@ -99,7 +99,7 @@ end)
 local function createButtonAndCounter(name)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(0.96, 0, 0.2, 0)
-	btn.Text = name .. ": ВЫКЛ [0]"
+	btn.Text = name .. " [0]"
 	btn.TextColor3 = Color3.new(1,1,1)
 	btn.BackgroundColor3 = Color3.new(1, 0.5, 0)
 	btn.BorderColor3 = Color3.new(1, 1, 0)
@@ -157,6 +157,14 @@ local function setButtonColors(ctrl, name)
 
 end
 
+local function brighten(color, mult)
+	return Color3.new(
+		math.clamp(color.R * mult, 0, 1),
+		math.clamp(color.G * mult, 0, 1),
+		math.clamp(color.B * mult, 0, 1)
+	)
+end
+
 local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
@@ -172,12 +180,14 @@ for name, ctrl in pairs(controls) do
 	ctrl.button.MouseButton1Click:Connect(function()
 		activeChests[name] = not activeChests[name]
 		if activeChests[name] then
-			ctrl.button.Text = name .. ": ВКЛ [" .. ctrl.count .. "]"
-			ctrl.button.BackgroundColor3 = Color3.new(0,1,0)
+			-- Увеличиваем яркость цветов в 3 раза
+			ctrl.button.BackgroundColor3 = brighten(ctrl.button.BackgroundColor3, 3)
+			ctrl.button.BorderColor3 = brighten(ctrl.button.BorderColor3, 3)
+			ctrl.button.TextColor3 = brighten(ctrl.button.TextColor3, 3)
 		else
-			ctrl.button.Text = name .. ": ВЫКЛ [" .. ctrl.count .. "]"
 			setButtonColors(ctrl, name) -- возвращаем исходные цвета
 		end
+		ctrl.button.Text = name .. " [" .. ctrl.count .. "]"
 	end)
 end
 
@@ -195,8 +205,7 @@ local function updateChestCounters()
 	local total = 0
 	for name, count in pairs(counts) do
 		controls[name].count = count
-		local state = activeChests[name] and ": ВКЛ [" or ": ВЫКЛ ["
-		controls[name].button.Text = name .. state .. count .. "]"
+		controls[name].button.Text = name .. " [" .. count .. "]"
 		total = total + count
 	end
 	-- обновляем общий счетчик
