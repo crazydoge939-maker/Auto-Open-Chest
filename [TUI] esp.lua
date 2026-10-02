@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -10,14 +9,16 @@ local activeChests = {
 	Chest = false,
 	["Dark Chest"] = false,
 	["Light Chest"] = false,
-	["Skin Chest"] = false,
-	["ICE Chest"] = false,
+	--		["Skin Chest"] = false,
+	--		["ICE Chest"] = false,
 
-	["IceLolly"] = false,
-	["Big IceLolly"] = false,
-	["HUGE ICELOLLY"] = false,
+	--		["IceLolly"] = false,
+	--		["Big IceLolly"] = false,
+	--		["HUGE ICELOLLY"] = false,
 
 	--	["Magic Egg"] = false,
+	
+	["Forbidden Candy"] = false,
 }
 
 -- Создаем минимальный интерфейс
@@ -122,32 +123,36 @@ local function setButtonColors(ctrl, name)
 		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0.392157, 0)
 		ctrl.button.BorderColor3 = Color3.new(0.686275, 0.686275, 0)
 		ctrl.button.TextColor3 = Color3.new(1, 1, 0)
-	elseif name == "Skin Chest" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
-		ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
-		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
-	elseif name == "ICE Chest" then
-		ctrl.button.BackgroundColor3 = Color3.new(0, 0.282353, 0.282353)
-		ctrl.button.BorderColor3 = Color3.new(0, 0.654902, 0.654902)
-		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+	--elseif name == "Skin Chest" then
+	--	ctrl.button.BackgroundColor3 = Color3.new(0.392157, 0, 0.392157)
+	--	ctrl.button.BorderColor3 = Color3.new(0.686275, 0, 0.686275)
+	--	ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+	--elseif name == "ICE Chest" then
+	--	ctrl.button.BackgroundColor3 = Color3.new(0, 0.282353, 0.282353)
+	--	ctrl.button.BorderColor3 = Color3.new(0, 0.654902, 0.654902)
+	--	ctrl.button.TextColor3 = Color3.new(0, 1, 1)
 
-	elseif name == "IceLolly" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.666667, 0.333333, 0.498039)
-		ctrl.button.BorderColor3 = Color3.new(0.403922, 0.2, 0.301961)
-		ctrl.button.TextColor3 = Color3.new(1, 0.498039, 0.74902)
-	elseif name == "Big IceLolly" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.270588, 0, 0.403922)
-		ctrl.button.BorderColor3 = Color3.new(0.486275, 0, 0.729412)
-		ctrl.button.TextColor3 = Color3.new(0.666667, 0, 1)
-	elseif name == "Huge IceLolly" then
-		ctrl.button.BackgroundColor3 = Color3.new(0.380392, 0, 0.380392)
-		ctrl.button.BorderColor3 = Color3.new(0.619608, 0, 0.619608)
-		ctrl.button.TextColor3 = Color3.new(1, 0, 1)
+	--elseif name == "IceLolly" then
+	--	ctrl.button.BackgroundColor3 = Color3.new(0.666667, 0.333333, 0.498039)
+	--	ctrl.button.BorderColor3 = Color3.new(0.403922, 0.2, 0.301961)
+	--	ctrl.button.TextColor3 = Color3.new(1, 0.498039, 0.74902)
+	--elseif name == "Big IceLolly" then
+	--	ctrl.button.BackgroundColor3 = Color3.new(0.270588, 0, 0.403922)
+	--	ctrl.button.BorderColor3 = Color3.new(0.486275, 0, 0.729412)
+	--	ctrl.button.TextColor3 = Color3.new(0.666667, 0, 1)
+	--elseif name == "Huge IceLolly" then
+	--	ctrl.button.BackgroundColor3 = Color3.new(0.380392, 0, 0.380392)
+	--	ctrl.button.BorderColor3 = Color3.new(0.619608, 0, 0.619608)
+	--	ctrl.button.TextColor3 = Color3.new(1, 0, 1)
 
 		--	elseif name == "Magic Egg" then
 		--		ctrl.button.BackgroundColor3 = Color3.new(0, 0.333333, 1)
 		--		ctrl.button.BorderColor3 = Color3.new(0, 0.666667, 1)
 		--		ctrl.button.TextColor3 = Color3.new(0, 1, 1)
+	elseif name == "Forbidden Candy" then
+		ctrl.button.BackgroundColor3 = Color3.new(0.0941176, 0.027451, 0.113725)
+		ctrl.button.BorderColor3 = Color3.new(0.423529, 0.0392157, 1)
+		ctrl.button.TextColor3 = Color3.new(0.513725, 0.286275, 1)
 	end
 
 end
@@ -156,7 +161,7 @@ local yStart = 0.12
 local rowSpacing = 0.16
 local controls = {}
 local index = 0
-for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Skin Chest", "ICE Chest", "IceLolly", "Big IceLolly", "Huge IceLolly"}) do
+for _, name in ipairs({"Chest", "Dark Chest", "Light Chest", "Forbidden Candy"}) do
 	index = index + 1
 	controls[name] = createButtonAndCounter(name, yStart + (index - 1) * rowSpacing)
 	setButtonColors(controls[name], name)
@@ -179,7 +184,7 @@ end
 -- Обновление счетчиков по сундукам
 local function updateChestCounters()
 	local backpack = player:WaitForChild("Backpack")
-	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Skin Chest"]=0,["ICE Chest"]=0,["IceLolly"]=0,["Big IceLolly"]=0,["Huge IceLolly"]=0,}
+	local counts = {Chest=0,["Dark Chest"]=0,["Light Chest"]=0,["Forbidden Candy"]=0}
 	for _, tool in ipairs(backpack:GetChildren()) do
 		if tool:IsA("Tool") then
 			if counts[tool.Name] ~= nil then
@@ -207,11 +212,7 @@ local function updateTotalChestCount()
 			and (tool.Name == "Chest" 
 			or tool.Name == "Dark Chest" 
 			or tool.Name == "Light Chest" 
-			or tool.Name == "Skin Chest" 
-			or tool.Name == "ICE Chest" 
-				or tool.Name == "IceLolly"
-				or tool.Name == "Big IceLolly"
-				or tool.Name == "Huge IceLolly"
+			or tool.Name == "Forbidden Candy"
 			) 	then
 			totalCount = totalCount + 1
 		end
